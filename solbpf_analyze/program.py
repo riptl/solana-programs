@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 import re
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterator, Optional
 
 from elftools.elf.elffile import ELFFile
 
@@ -26,13 +26,31 @@ class OnChainProgram:
             program_file.write(self.data)
 
 
+@dataclass
+class Summary:
+    size: int
+    section_sizes: dict[int]
+    home_name: Optional[str]
+
+
 class Program:
-    def __init__(self, filename: str):
+    def __init__(self, filename: Path):
+        self.size = filename.stat().st_size
         self.elf_file = open(filename, "rb")
         self.elf = ELFFile(self.elf_file)
         self.rodata = self.elf.get_section_by_name(".rodata")
 
-    def dox(self) -> Iterable[str]:
+    def summarize(self) -> Summary:
+        return Summary(
+            size=self.size,
+            section_sizes=self.get_section_sizes(),
+            home_name=next(self.dox(), None),
+        )
+
+    def get_section_sizes(self) -> dict[int]:
+        return {sec.name: sec.data_size for sec in self.elf.iter_sections()}
+
+    def dox(self) -> Iterator[str]:
         """Returns the compiled-in home directory names."""
         if self.rodata is None:
             return iter(())
