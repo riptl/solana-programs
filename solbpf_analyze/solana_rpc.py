@@ -82,7 +82,7 @@ class SolanaRPC(RPCClient):
         pubkeys: Iterable[str],
         loader: Loader,
         offset: int = 0,
-        batch: int = 100,
+        batch: int = 50,
     ) -> Generator[OnChainProgram, None, None]:
         pubkeys = iter(pubkeys)
         while True:
@@ -100,6 +100,7 @@ class SolanaRPC(RPCClient):
         result = self.request("getMultipleAccounts", pubkeys, {"dataSlice": data_slice})
         for idx, item in enumerate(result["value"]):
             if item is None:
+                print(f"WARN: {pubkeys[idx]} not found!")
                 continue
             data = b64decode(item["data"][0])
             assert data[:4] == ELF_MAGIC
