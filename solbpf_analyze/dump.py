@@ -19,6 +19,7 @@ def dump(network):
 
     script_dir = Path(sys.argv[0]).parent.parent
     dump_dir = script_dir / "programs" / network
+    dump_dir.mkdir(exist_ok=True)
     print(f"Dumping to {dump_dir}")
     print()
 
