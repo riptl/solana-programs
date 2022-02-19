@@ -28,23 +28,44 @@ class OnChainProgram:
 
 @dataclass
 class Summary:
+    pubkey: str
     size: int
     section_sizes: dict[int]
     home_name: Optional[str]
+    text_size: int = 0
+    rodata_size: int = 0
+
+    @staticmethod
+    def fields() -> list:
+        return ["pubkey", "size", "home_name", "text_size", "rodata_size"]
+
+    def to_csv(self) -> dict:
+        return {
+            "pubkey": self.pubkey,
+            "size": self.size,
+            "home_name": self.home_name or "",
+            "text_size": self.text_size,
+            "rodata_size": self.rodata_size,
+        }
 
 
 class Program:
     def __init__(self, filename: Path):
+        self.pubkey = filename.stem
         self.size = filename.stat().st_size
         self.elf_file = open(filename, "rb")
         self.elf = ELFFile(self.elf_file)
         self.rodata = self.elf.get_section_by_name(".rodata")
 
     def summarize(self) -> Summary:
+        section_sizes = self.get_section_sizes()
         return Summary(
+            pubkey=self.pubkey,
             size=self.size,
             section_sizes=self.get_section_sizes(),
             home_name=next(self.dox(), None),
+            text_size=section_sizes.get(".text", 0),
+            rodata_size=section_sizes.get(".rodata", 0),
         )
 
     def get_section_sizes(self) -> dict[int]:
