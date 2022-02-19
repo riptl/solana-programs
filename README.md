@@ -37,5 +37,5 @@ Listing BPF Loader (upgradeable)
 Got 3887 BPF Loader Upgradeable accounts
 
 Starting dump
- 10%|████████▊                                                                                    | 1300/13681 [00:12<01:50, 111.61it/s]
+ 10%|████████▊                                    | 1300/13681 [00:12<01:50, 111.61it/s]
 ```

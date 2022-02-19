@@ -5,10 +5,8 @@ from .dump import dump
 
 
 @click.group()
-@click.option("--solana_cli", type=str, default="solana")
 @click.option("--rpc", type=str, default="http://localhost:8899")
-def cli(solana_cli, rpc):
-    env.solana_cli_str = solana_cli
+def cli(rpc):
     env.solana_rpc_str = rpc
 
 
