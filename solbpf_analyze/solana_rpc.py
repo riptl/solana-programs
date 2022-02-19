@@ -91,6 +91,8 @@ class SolanaRPC(RPCClient):
                 break
             for program in self._get_multiple_programs_batch(chunk, offset):
                 program.loader = loader
+                if program.data[:4] != ELF_MAGIC:
+                    print(f"WARN: {program.pubkey} is not a valid ELF")
                 yield program
 
     def _get_multiple_programs_batch(
@@ -103,5 +105,4 @@ class SolanaRPC(RPCClient):
                 print(f"WARN: {pubkeys[idx]} not found!")
                 continue
             data = b64decode(item["data"][0])
-            assert data[:4] == ELF_MAGIC
             yield OnChainProgram(pubkey=pubkeys[idx], data=data)
