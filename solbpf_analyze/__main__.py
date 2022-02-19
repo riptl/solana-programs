@@ -1,39 +1,19 @@
-import argparse
-from pathlib import Path
-import re
-import sys
+import click
 
-from elftools.common.exceptions import ELFError
-from elftools.elf.elffile import ELFFile
+from . import env
+from .dump import dump
 
 
-def do_stuff(filename: ELFFile):
-    rodata_section = filename.get_section_by_name(".rodata")
-    if rodata_section is None:
-        return
-    rodata = rodata_section.data()
-
-    matches = re.finditer(
-        rb"\/(?:Users|home)\/([\w]+)\/", rodata, re.ASCII | re.MULTILINE
-    )
-    matches = set([match[1].decode("utf-8") for match in matches])
-    for match in matches:
-        print(match)
+@click.group()
+@click.option("--solana_cli", type=str, default="solana")
+@click.option("--rpc", type=str, default="http://localhost:8899")
+def cli(solana_cli, rpc):
+    env.solana_cli_str = solana_cli
+    env.solana_rpc_str = rpc
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("elf", type=Path)
-    args = parser.parse_args()
-
-    with open(args.elf, "rb") as elf_file:
-        try:
-            elf = ELFFile(elf_file)
-        except ELFError:
-            print("[!] not an ELF", file=sys.stderr)
-            sys.exit(1)
-        do_stuff(elf)
+cli.add_command(dump)
 
 
 if __name__ == "__main__":
-    main()
+    cli()
