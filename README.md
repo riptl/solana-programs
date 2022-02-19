@@ -1,6 +1,6 @@
 # solana-programs
 
-All [Solana](https://solana.com/) mainnet programs as of 2022-02-11.
+All [Solana](https://solana.com/) programs as of 2022-02-11.
 
 ### Why?
 
