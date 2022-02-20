@@ -1,6 +1,7 @@
 from base64 import b64decode
 from dataclasses import dataclass
 import itertools
+import sys
 from typing import Iterable, Iterator, Generator
 
 from base58 import b58encode
@@ -92,7 +93,7 @@ class SolanaRPC(RPCClient):
             for program in self._get_multiple_programs_batch(chunk, offset):
                 program.loader = loader
                 if program.data[:4] != ELF_MAGIC:
-                    print(f"WARN: {program.pubkey} is not a valid ELF")
+                    print(f"WARN: {program.pubkey} is not a valid ELF", sys.stderr)
                 yield program
 
     def _get_multiple_programs_batch(
@@ -102,7 +103,7 @@ class SolanaRPC(RPCClient):
         result = self.request("getMultipleAccounts", pubkeys, {"dataSlice": data_slice})
         for idx, item in enumerate(result["value"]):
             if item is None:
-                print(f"WARN: {pubkeys[idx]} not found!")
+                print(f"WARN: {pubkeys[idx]} not found!", sys.stderr)
                 continue
             data = b64decode(item["data"][0])
             yield OnChainProgram(pubkey=pubkeys[idx], data=data)

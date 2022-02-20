@@ -26,7 +26,7 @@ def iter_elfs(dir: Path) -> Iterator[Program]:
         try:
             yield Program(elf_path)
         except ELFError as e:
-            print(f"WARN: {elf_path.name} is invalid: {e.args[0]}")
+            print(f"WARN: {elf_path.name} is invalid: {e.args[0]}", file=sys.stderr)
 
 
 @cli.command()
@@ -47,6 +47,7 @@ def summary(elf_dir: Path):
     print(",".join(Summary.fields()))
     for elf in iter_elfs(elf_dir):
         writer.writerow(elf.summarize().to_csv())
+        sys.stdout.flush()
 
 
 @cli.command()
